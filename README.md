@@ -1,4 +1,4 @@
 Battleship
 ==========
 
-Simple Battleship game w/ ai in python
+Simple Battleship game with an AI in python
