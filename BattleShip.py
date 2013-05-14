@@ -8,55 +8,52 @@ player_board = []
 ai_radar = []
 ai_board = []
 
+
 ai_hit = 0 #has the ai hit me?
 vert_ship = -1 #ai var is_my_ship_vertical
 
 def print_board():
     for row in range(board_size):
-        print (" ".join(player_radar[row]), "||" , " ".join(player_board[row]))
+        print " ".join(player_radar[row]), "||" , " ".join(player_board[row])
 
-def random_row(is_vertical):
+def random_row(is_vertical, size):
     if is_vertical:
-        return randint(0, board_size - ship_size)
+        return randint(0, board_size - size)
     else:
         return randint(0, board_size -1)
-    
-def random_col(is_vertical):
+
+def random_col(is_vertical, size):
     if is_vertical:
         return randint(0, board_size - 1)
     else:
-        return randint(ship_size-1, board_size -1)
-    
-def makeShip():
+        return randint(size-1, board_size -1)
+
+def make_ship():
     temp_board = []
     for _ in range(board_size):
             temp_board.append([OCEAN] * board_size)
     ships_added = 0
     while (ships_added < num_ships): # make multiple ships
         is_vertical = randint(0, 1) # vertical ship if true
-        ship_row = random_row(is_vertical)
-        ship_col = random_col(is_vertical)
+        ship_row = random_row(is_vertical, ship_size - ships_added)
+        ship_col = random_col(is_vertical, ship_size - ships_added)
 
         # check if location is occupied. if so, retry making ship.
         unoccupied = True
-        if (temp_board[ship_row][ship_col] != OCEAN): 
-            unoccupied = False
         if is_vertical:
-            if (temp_board[ship_row+ship_size-ships_added-1][ship_col] != OCEAN): 
-                unoccupied = False
-            for p in range(ship_size-ships_added -2):    
-                if(temp_board[ship_row+p+1][ship_col]!=OCEAN): 
+            for p in range(ship_size-ships_added -1):
+                if not exists(ship_row+p, ship_col, temp_board):
                     unoccupied = False
         else:
-            if (temp_board[ship_row][ship_col-ship_size+ships_added+1] != OCEAN): 
+            if not exists(ship_row, ship_col-ship_size+ships_added+1, temp_board):
                 unoccupied = False
-            for p in range(ship_size-ships_added -2):
-                if(temp_board[ship_row][ship_col-p-1]!=OCEAN): 
+            for p in range(ship_size-ships_added -1):
+                if not exists(ship_row, ship_col-p, temp_board):
                     unoccupied = False
-                
+
         if unoccupied:
             if (ship_size - ships_added == 1):
-                temp_board[ship_row][ship_col] = "+" # ship of size 1
+                pass # ship of size 1
             elif is_vertical:
                 temp_board[ship_row][ship_col] = "^"
                 temp_board[ship_row+ship_size-ships_added-1][ship_col] = "v"
@@ -67,7 +64,7 @@ def makeShip():
                 temp_board[ship_row][ship_col-ship_size+ships_added+1] = "<"
                 for p in range(ship_size-ships_added -2):
                     temp_board[ship_row][ship_col-p-1] = "+"
-            ships_added = ships_added+1
+            ships_added += 1
     return temp_board
 
 def exists(row, col, b): # true if ocean
@@ -81,6 +78,7 @@ def exists(row, col, b): # true if ocean
         return 0
 
 # Make the boards (and set ship_size)
+print "Let's play Battleship!"
 board_size = int(input("Please input a board size: "))
 for x in range(board_size):
         player_radar.append([OCEAN] * int(board_size))
@@ -92,19 +90,19 @@ num_ships = -1
 while num_ships > ship_size or num_ships < 0:
     num_ships = int(input("Please input the number of ships: "))
 
-ai_board = makeShip()
+ai_board = make_ship()
 ai_ship_alive = ship_size
 for i in range(0, num_ships):
     ai_ship_alive += (ship_size-i)
 
 #for row in range(board_size):
 #    print " ".join(ai_board[row])
-player_board = makeShip()
+player_board = make_ship()
 my_ship_alive = ship_size
 for i in range(0, num_ships):
     my_ship_alive += (ship_size-i)
 
-print ("Let's play Battleship!")
+#print ("Let's play Battleship!")
 print_board()
 
 while my_ship_alive and ai_ship_alive:
