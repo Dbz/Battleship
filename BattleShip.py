@@ -1,122 +1,139 @@
 from random import randint
-
+import copy
+#Constants and globals
 OCEAN = "O"
 FIRE = "X"
 HIT = "*"
+SIZE = 10
+SHIPS = [5, 4, 3, 3, 2]
+#globals
+orientation = -1 # Stores the hit ship orientation. Determined on second hit
+total_hits = [] # Stores the ship number every time AI hits a ship while ship is afloat
+miss = 1 # Stores whether last AI shot was a miss
+# Player variables
+player_alive = 17 # -1 every time a ship is hit
 player_radar = []
 player_board = []
+# AI variables
+ai_alive = 17
 ai_radar = []
 ai_board = []
+ship_position = [] # Stores the first hit of ships which will be eliminated [row, col]
+ship_length = [] # Stores the length of ship on first hit
 
+#Set up variables
+SEA = [] # Blank Board
+for x in range(SIZE):
+    SEA.append([OCEAN] * SIZE)
 
-ai_hit = 0 #has the ai hit me?
-vert_ship = -1 #ai var is_my_ship_vertical
-
+#Functions
 def print_board():
-    for row in range(board_size):
+    numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    #print numbers.join("")
+    for row in range(SIZE):
         print " ".join(player_radar[row]), "||" , " ".join(player_board[row])
 
 def random_row(is_vertical, size):
     if is_vertical:
-        return randint(0, board_size - size)
+        return randint(0, SIZE - size)
     else:
-        return randint(0, board_size -1)
+        return randint(0, SIZE -1)
 
 def random_col(is_vertical, size):
     if is_vertical:
-        return randint(0, board_size - 1)
+        return randint(0, SIZE - 1)
     else:
-        return randint(size-1, board_size -1)
+        return randint(size-1, SIZE -1)
 
-def make_ship():
-    temp_board = []
-    for _ in range(board_size):
-            temp_board.append([OCEAN] * board_size)
-    ships_added = 0
-    while (ships_added < num_ships): # make multiple ships
-        is_vertical = randint(0, 1) # vertical ship if true
-        ship_row = random_row(is_vertical, ship_size - ships_added)
-        ship_col = random_col(is_vertical, ship_size - ships_added)
-
-        # check if location is occupied. if so, retry making ship.
-        unoccupied = True
-        if is_vertical:
-            for p in range(ship_size-ships_added -1):
-                if not exists(ship_row+p, ship_col, temp_board):
-                    unoccupied = False
-        else:
-            if not exists(ship_row, ship_col-ship_size+ships_added+1, temp_board):
-                unoccupied = False
-            for p in range(ship_size-ships_added -1):
-                if not exists(ship_row, ship_col-p, temp_board):
-                    unoccupied = False
-
-        if unoccupied:
-            if (ship_size - ships_added == 1):
-                pass # ship of size 1
-            elif is_vertical:
-                temp_board[ship_row][ship_col] = "^"
-                temp_board[ship_row+ship_size-ships_added-1][ship_col] = "v"
-                for p in range(ship_size-ships_added -2):
-                    temp_board[ship_row+p+1][ship_col] = "+"
-            else:
-                temp_board[ship_row][ship_col] = ">"
-                temp_board[ship_row][ship_col-ship_size+ships_added+1] = "<"
-                for p in range(ship_size-ships_added -2):
-                    temp_board[ship_row][ship_col-p-1] = "+"
-            ships_added += 1
-    return temp_board
-
-def exists(row, col, b): # true if ocean
-    if row < 0 or row >= board_size:
+def is_ocean(row, col, b): # true if ocean
+    if row < 0 or row >= SIZE:
         return 0
-    elif col < 0 or col >= board_size:
+    elif col < 0 or col >= SIZE:
         return 0
     if b[row][col] == OCEAN:
         return 1
     else:
         return 0
 
-# Make the boards (and set ship_size)
+def make_ship(size, board, set_ship = None):
+    # Find an unoccupied spot, then place ship on board
+    # Put set_ship on ship_number_board if set_ship
+    is_vertical = randint(0, 1) # vertical ship if true
+    occupied = True
+    while(occupied):
+        occupied = False
+        ship_row = random_row(is_vertical, size)
+        ship_col = random_col(is_vertical, size)
+        if is_vertical:
+            for p in range(size):
+                if not is_ocean(ship_row+p, ship_col, board):
+                    occupied = True
+        else:
+            for p in range(size):
+                if not is_ocean(ship_row, ship_col-p, board):
+                    occupied = True
+    #Place ship on boards
+    if is_vertical:
+        board[ship_row][ship_col] = "^"
+        board[ship_row+size-1][ship_col] = "v"
+        if set_ship != None:
+            number_board[ship_row][ship_col] = set_ship
+            number_board[ship_row+size-1][ship_col] = set_ship
+        for p in range(size -2):
+            board[ship_row+p+1][ship_col] = "+"
+            if set_ship != None:
+                number_board[ship_row+p+1][ship_col] = set_ship
+    else:
+        board[ship_row][ship_col] = ">"
+        board[ship_row][ship_col-size+1] = "<"
+        if set_ship != None:
+            number_board[ship_row][ship_col] = set_ship
+            number_board[ship_row][ship_col-size+1] = set_ship
+        for p in range(size -2):
+            board[ship_row][ship_col-p-1] = "+"
+            if set_ship != None:
+                number_board[ship_row][ship_col-p-1] = set_ship
+    return board
+def ship_number(r, c):
+    # Returns -1 if not found
+    if is_ocean(r, c, number_board):
+        return -1
+    #print "ship_number() returning: ", str(SHIPS[number_board[r][c]])
+    return SHIPS[number_board[r][c]]
+def ship_sunk(): # true if ship sunk
+    #print "Total Hits: ", str(total_hits.count(ship_length[0]), ":", str(ship_length[2])
+    #for item in number_board:
+    #    print item[0], ' '.join(map(str, item[1:]))
+    if total_hits.count(total_hits[0]) == ship_length[0]:
+        return 1
+    return 0
+
+
+# Make the boards
+player_radar = copy.deepcopy(SEA)
+player_board = copy.deepcopy(SEA)
+ai_radar = copy.deepcopy(SEA)
+ai_board = copy.deepcopy(SEA)
+number_board = copy.deepcopy(SEA)
+
+for x in range(len(SHIPS)):
+    player_board = make_ship(SHIPS[x], player_board, x)
+    ai_board = make_ship(SHIPS[x], ai_board)
+
 print "Let's play Battleship!"
-board_size = int(input("Please input a board size: "))
-for x in range(board_size):
-        player_radar.append([OCEAN] * int(board_size))
-        ai_radar.append([OCEAN] * int(board_size))
-ship_size = -1
-while ship_size > board_size or ship_size < 0:
-    ship_size = int(input("Please input a ship size: "))
-num_ships = -1
-while num_ships > ship_size or num_ships < 0:
-    num_ships = int(input("Please input the number of ships: "))
-
-ai_board = make_ship()
-ai_ship_alive = ship_size
-for i in range(0, num_ships):
-    ai_ship_alive += (ship_size-i)
-
-#for row in range(board_size):
-#    print " ".join(ai_board[row])
-player_board = make_ship()
-my_ship_alive = ship_size
-for i in range(0, num_ships):
-    my_ship_alive += (ship_size-i)
-
-#print ("Let's play Battleship!")
 print_board()
-
-while my_ship_alive and ai_ship_alive:
-    #First my turn
+while player_alive and ai_alive:
+    # player turn
     guess_row = int(input("Guess Row:"))
     guess_col = int(input("Guess Col:"))
-    while not exists(guess_row, guess_col, player_radar):
+    while not is_ocean(guess_row, guess_col, player_radar):
         print ("Sorry, that is not a valid shot")
         guess_row = int(input("Guess Row:"))
         guess_col = int(input("Guess Col:"))
     # Legal Guess
     if ai_board[guess_row][guess_col] != OCEAN:
-        ai_ship_alive -= 1
-        if ai_ship_alive:
+        ai_alive -= 1
+        if ai_alive:
             print ("Admiral, we've hit the enemy ship!")
             player_radar[guess_row][guess_col] = HIT
         else:
@@ -126,82 +143,127 @@ while my_ship_alive and ai_ship_alive:
     else:
         print ("Admiral, we've missed the enemy battleship!")
         player_radar[guess_row][guess_col] = FIRE
-    # Now ai's turn
-    if not ai_hit:
-        ai_guess_row = randint(0, board_size-1)
-        ai_guess_col = randint(0, board_size-1)
-        while ai_radar[ai_guess_row][ai_guess_col] != OCEAN:
-            ai_guess_row = randint(0, board_size-1)
-            ai_guess_col = randint(0, board_size-1)
-        if player_board[ai_guess_row][ai_guess_col] != OCEAN: # ai-hit
-            my_ship_alive -= 1
-            ai_hit =1
-            vert_ship = -1
-            ai_hit_row = ai_guess_row
-            ai_hit_col = ai_guess_col
-            player_board[ai_hit_row][ai_hit_col] = HIT
-            ai_radar[ai_hit_row][ai_hit_col] = HIT
+    # AI turn
+    print "target orientation: ", orientation
+    if not len(ship_length): # No current targets
+        #print "No Current Targets"
+        second_shot = 0
+        ai_guess_row = randint(0, SIZE-1)
+        ai_guess_col = randint(0, SIZE-1)
+        while not is_ocean(ai_guess_row, ai_guess_col, ai_radar):
+            ai_guess_row = randint(0, SIZE-1)
+            ai_guess_col = randint(0, SIZE-1)
+        if not is_ocean(ai_guess_row, ai_guess_col, player_board): # AI hit
+            miss = 0
+            player_alive -= 1
+            #print "Hit ship length: ", ship_number(ai_guess_row, ai_guess_col)
+            ship_length.append((ship_number(ai_guess_row, ai_guess_col)))
+            #print "ship_position length: ", str(len(ship_position))
+            ship_position.extend([ai_guess_row, ai_guess_col])
+            #print "ship_position length: ", str(len(ship_position))
+            orientation = -1
+            player_board[ai_guess_row][ai_guess_col] = HIT
+            ai_radar[ai_guess_row][ai_guess_col] = HIT
+            total_hits.append(number_board[ai_guess_row][ai_guess_col])
             print ("Attenton Admiral! You have been hit!")
         else:
+            miss = 1
             player_board[ai_guess_row][ai_guess_col] = FIRE
             ai_radar[ai_guess_row][ai_guess_col] = FIRE
             print ("Good news! They've missed!")
-    else: # ai_hit >=1, find next spot to shoot
-        if vert_ship == -1:
-            if exists(ai_hit_row+1, ai_hit_col, ai_radar):
-                ai_guess_row = ai_hit_row+1
-                ai_guess_col = ai_hit_col
-            elif exists(ai_hit_row-1, ai_hit_col, ai_radar):
-                ai_guess_row = ai_hit_row-1
-                ai_guess_col = ai_hit_col
-            elif exists(ai_hit_row, ai_hit_col-1, ai_radar):
-                ai_guess_row = ai_hit_row
-                ai_guess_col = ai_hit_col-1
+    else: # Find next spot to shoot on ship
+        #print "Current Targets: ", " ".join(map(str, ship_length)),":", " ".join(map(str,total_hits))
+        #print "Last shot was a miss: ", miss
+        if orientation == -1: # shot-test for orientation of hit ship
+            #ship_position[ swapped for ai_hit_
+            print "Ship has no orientation"
+            if is_ocean(ship_position[0]+1, ship_position[1], ai_radar):
+                ai_guess_row = ship_position[0]+1
+                ai_guess_col = ship_position[1]
+            elif is_ocean(ship_position[0]-1, ship_position[1], ai_radar):
+                ai_guess_row = ship_position[0]-1
+                ai_guess_col = ship_position[1]
+            elif is_ocean(ship_position[0], ship_position[1]-1, ai_radar):
+                ai_guess_row = ship_position[0]
+                ai_guess_col = ship_position[1]-1
             else:
-                ai_guess_row = ai_hit_row
-                ai_guess_col = ai_hit_col+1
-        elif vert_ship:
-            if exists(ai_hit_row+1, ai_hit_col, ai_radar):
-                ai_guess_row = ai_hit_row+1
-                ai_guess_col = ai_hit_col
+                ai_guess_row = ship_position[0]
+                ai_guess_col = ship_position[1]+1
+        elif orientation: # Shoot at verticle ship
+            #print "Previous Guess: ", ai_guess_row, ":", ai_guess_col
+            for item in ai_radar:
+                print item[0], ' '.join(map(str, item[1:]))
+            if is_ocean(ai_guess_row+1, ai_guess_col, ai_radar) and not miss:
+                ai_guess_row += 1
             else:
-                ai_guess_row = ai_hit_row-1
-                ai_guess_col = ai_hit_col
-                while not exists(ai_guess_row, ai_guess_col, ai_radar):
-                    ai_guess_row += 1
+                #print "Adjusting guess to lower row number"
+                ai_guess_row -= 1
 
-        else:
-            if exists(ai_guess_row, ai_hit_col-1, ai_radar):
-                ai_guess_row = ai_hit_row
-                ai_guess_col = ai_hit_col-1
+                while not is_ocean(ai_guess_row, ai_guess_col, ai_radar): # not is important here
+                    ai_guess_row -= 1
+                #print "New Guess: ", ai_guess_row, ":", ai_guess_col
+        else: # Shoot at horizontal ship
+            #print "Previous Guess: ", ai_guess_row, ":", ai_guess_col
+            for item in ai_radar:
+                print item[0], ' '.join(map(str, item[1:]))
+            if is_ocean(ai_guess_row, ai_guess_col-1, ai_radar) and not miss:
+                ai_guess_col = ai_guess_col-1
             else:
-                ai_guess_row = ai_hit_row
-                ai_guess_col = ai_hit_col+1
-                while not exists(ai_guess_row, ai_guess_col, ai_radar):
-                    ai_guess_col -= 1
+                #print "Adjusting guess to higher col number"
+                ai_guess_col = ai_guess_col+1
+                while not is_ocean(ai_guess_row, ai_guess_col, ai_radar):
+                    ai_guess_col += 1
+                #print "New Guess: ", ai_guess_row, ":", ai_guess_col
+        # Set boards after shots
+        if not is_ocean(ai_guess_row, ai_guess_col, player_board):
 
-        # Update board on shot
-        if player_board[ai_guess_row][ai_guess_col] != OCEAN:
-            ai_hit += 1
-            if ai_hit == 2:
-                if ai_guess_col != ai_hit_col:
-                        vert_ship = 0
-                        print ("vert_ship:"), vert_ship
-                else:
-                    vert_ship = 1
-                    print ("vert_ship:"), vert_ship
+            #number_board[ai_guess_row][ai_guess_col] = OCEAN
+            #print "Setting Board: ", ai_guess_row, ":", ai_guess_col
             player_board[ai_guess_row][ai_guess_col] = HIT
             ai_radar[ai_guess_row][ai_guess_col] = HIT
-            my_ship_alive -= 1
-            if my_ship_alive:
+            total_hits.append(number_board[ai_guess_row][ai_guess_col])
+            #ship_position.extend([ai_guess_row, ai_guess_col])
+            player_alive -= 1
+
+            #if second_shot: # set orientation
+            #print "DEBUG: ", total_hits.count(total_hits[0]), ship_number(ai_guess_row, ai_guess_col), ship_number(ship_position[0], ship_position[1])
+            if total_hits.count(total_hits[0]) == 2 and ship_number(ai_guess_row, ai_guess_col) == ship_number(ship_position[0], ship_position[1]):
+                if ai_guess_col != ship_position[1]:
+                    orientation = 0
+                else:
+                    orientation = 1
+                print "New Orientation: ", orientation
+            elif total_hits[0] != number_board[ai_guess_row][ai_guess_col]: # Other ship was shot
+                ship_length.append((ship_number(ai_guess_row, ai_guess_col)))
+                ship_position.extend([ai_guess_row, ai_guess_col])
+            if player_alive:
+                miss = 0
                 print ("Attenton Admiral! You have been hit!")
             else:
                 print ("I'm sorry sir, but we're going down")
                 print_board()
                 break
-        else: # ai missed
+        else: # AI missed
+            print "DEBUG: r,c: ", ai_guess_row, ", ", ai_guess_col
+            miss = 1
             player_board[ai_guess_row][ai_guess_col] = FIRE
             ai_radar[ai_guess_row][ai_guess_col] = FIRE
             print ("Good news! They've missed!")
+        if ship_sunk(): # Reset variables
+                #print "Ship sunk"
+                orientation = -1
+                ship_position.pop(0)
+                ship_position.pop(0)
+                ship_length.pop(0)
 
+                t = total_hits[0]
+                for x in range(total_hits.count(t)):
+                    total_hits.remove(t)
+
+                #print "Targets after sinking: ", " ".join(map(str, ship_length)),":", " ".join(map(str,total_hits))
+                if len(ship_length) != 0:
+                    miss = 0
+                else:
+                    miss = 1
+                #print "ship_position list: ", " ".join(map(str, ship_position))
     print_board()
