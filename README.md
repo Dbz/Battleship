@@ -10,11 +10,11 @@ This is a simple python program that lets the user play against an AI oponent.
 ## Installation
 
 To install Battleship, you will need to have python installed. Download python [here](https://www.python.org/downloads/).
-![alt text](https://github.com/brandonsness/Battleship/blob/master/markdown/py1.JPG)
+![alt text](https://github.com/Dbz/Battleship/blob/master/markdown/py1.JPG)
 
 **This program will not run on python 3. So download the Python 2.7 package.** 
 Once you have downloaded the Python 2.7 executable, run it and go through the installer. 
-Now with python installed, we can download and run the game! To download the game just hit the green button labled Clone or download and then hit the Zip folder button. ![alt text](https://github.com/brandonsness/Battleship/blob/master/markdown/down1.JPG)
+Now with python installed, we can download and run the game! To download the game just hit the green button labled Clone or download and then hit the Zip folder button. ![alt text](https://github.com/Dbz/Battleship/blob/master/markdown/down1.JPG)
 
 
 Once the zipped folder is downloaded, You can extract the files. This is different for every operating system, for windows I recomemnd [7-zip](https://www.7-zip.org/). After unziping the files, just double click on the file BattleShip.py.
@@ -28,6 +28,8 @@ The object of the game is simple, sink all of the enemy ships before they can si
 ## Contribute
 * Issue Tracker: https://github.com/Dbz/Battleship/issues
 * Source Code: https://github.com/Dbz/Battleship/blob/master/BattleShip.py
+* Wiki: https://github.com/Dbz/Battleship/wiki
+* Roadmap: https://github.com/Dbz/Battleship/wiki/Roadmap
 
 ## Imporovememnt ideas
 * Port to python 3.
