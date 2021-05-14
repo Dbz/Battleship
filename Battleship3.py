@@ -59,7 +59,7 @@ def is_ocean(row, col, b): # true if ocean
         return 0
 
 def is_oceanin(row,col,b):
-    if row is not int or col is not int:
+    if type(row) is not int or type(col) is not int:
         return 0
     if row < 0 or row >= SIZE:
         return 0
@@ -140,12 +140,12 @@ print("Let's play Battleship!")
 print_board()
 while player_alive and ai_alive:
     # player turn
-    guess_row = input("Guess Row:")
-    guess_col = input("Guess Col:")
+    guess_row = int(input("Guess Row:"))
+    guess_col = int(input("Guess Col:"))
     while not is_oceanin(guess_row, guess_col, player_radar):
         print("Sorry, that is not a valid shot")
-        guess_row = input("Guess Row:")
-        guess_col = input("Guess Col:")
+        guess_row = int(input("Guess Row:"))
+        guess_col = int(input("Guess Col:"))
     # Legal Guess
     if ai_board[guess_row][guess_col] != OCEAN:
         ai_alive -= 1
