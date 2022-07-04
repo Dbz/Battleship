@@ -1,0 +1,29 @@
+{
+	"files": [
+		{
+			"path": "Battleship3.py",
+			"bookmarks": [
+				{
+					"line": 29,
+					"column": 18,
+					"label": "Board display"
+				},
+				{
+					"line": 30,
+					"column": 64,
+					"label": "numbers = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'K']"
+				},
+				{
+					"line": 142,
+					"column": 40,
+					"label": "Enter the player's move(Row)"
+				},
+				{
+					"line": 143,
+					"column": 40,
+					"label": "Enter the player's move(Col)"
+				}
+			]
+		}
+	]
+}
